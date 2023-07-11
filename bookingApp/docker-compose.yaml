@@ -1,0 +1,53 @@
+version: "3"
+services:
+  
+  client:
+   build:
+      context: ./client
+      dockerfile: Dockerfile
+   ports:
+    -  3000:3000
+   container_name: mern-ui
+   networks:
+    -  mern-stack-net
+   volumes:      
+      - ./client/:/client
+      - /client/node_modules
+   depends_on:
+    - server
+   stdin_open: true
+   tty: true
+
+  server:
+   build:
+      context: ./server
+      dockerfile: Dockerfile
+   ports:
+     - 3080:3080
+   container_name: mern-api
+   networks:
+     - mern-stack-net
+   volumes:
+      - ./server/:/server
+      - /server/node_modules
+   depends_on:
+    - db
+   env_file: ./server/.env
+
+  db:
+    image: mongo
+    ports:
+      - 27017:27017
+    container_name: mongo-db
+    networks:
+      - mern-stack-net
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  mern-stack-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
